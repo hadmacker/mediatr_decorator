@@ -7,18 +7,18 @@ using FunctionApp1.Requests;
 
 namespace FunctionApp1
 {
-    public class Function1
+    public class PingFunction
     {
         private readonly IMediator _mediator;
 
-        public Function1(IMediator mediator)
+        public PingFunction(IMediator mediator)
         {
             _mediator = mediator;
         }
 
-        [FunctionName("Function1")]
+        [FunctionName("Ping")]
         public async Task<string> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Ping")] HttpRequest req)
         {
             return await _mediator.Send(new Ping());
         }

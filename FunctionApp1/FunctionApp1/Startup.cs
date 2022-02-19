@@ -18,9 +18,21 @@ namespace FunctionApp1
         {
             //https://github.com/jbogard/MediatR/wiki#aspnet-core-or-net-core-in-general
             builder.Services.AddMediatR(GetType());
+
             //[Registering Open Generics](https://www.vaughanreid.com/2020/04/asp-net-core-dependency-injection-registering-open-generics/#:~:text=A%20really%20interesting%20trick%20you,having%20to%20register%20it%20specifically.)
-            builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehaviour<,>));
-            builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(TimingBehaviour<,>));
+            //[GH: Pipeline Behaviours](https://github.com/jbogard/MediatR/wiki/Behaviors)
+
+            // Pipeline Behaviours, OPTION 1: Manually declare all behaviours. Pipeline Behaviours execute in order of declaration below:
+            //builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehaviour<,>));
+            //builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(TimingBehaviour<,>));
+
+            // Pipeline Behaviours, OPTION 2: Scrutor to scan all assemblies. Unclear about controlling pipeline order.
+            //[Scrutor Assembly Scanning DI](https://github.com/khellang/Scrutor)
+            builder.Services.Scan(scan => scan.FromAssemblyOf<Startup>()
+                .AddClasses(classes => classes.AssignableTo(typeof(IPipelineBehavior<,>)))
+                .AsImplementedInterfaces()
+                .WithTransientLifetime()
+            );
 
             //[Serilog.net](https://serilog.net/)
             var logger = new LoggerConfiguration()
